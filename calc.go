@@ -37,6 +37,10 @@ func main(){
 			scanner.Scan()
 			inpstr = scanner.Text()
 		}
+		if inpstr == "q"{
+			fmt.Println("Kaizoku-ou ni ore wa naru!")
+			break
+		}
 		parsed := make_ast(inpstr)
 
 		parsed.traverse()
