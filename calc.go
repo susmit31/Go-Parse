@@ -149,7 +149,6 @@ func make_ast(expr string) *Node{
 		}	
 	}
 	*root_node = Node{parent:nil, children: append(operands, op), content: expr}
-	fmt.Println("finished")
 	return root_node
 }
 
