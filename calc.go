@@ -12,7 +12,6 @@ var OPS []string = strings.Split("+ - * /", " ")
 var NUMS = srange(0,10)
 
 func main(){
-	fmt.Println("keilla dilam")
 	var inpstr string
 
 	//---------------------------------- 
@@ -21,7 +20,6 @@ func main(){
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	inpstr = scanner.Text()
-	fmt.Printf("lulami laib %s\n", inpstr)
 
 	//-----------------------------------
 	// Tokenizing the input string
