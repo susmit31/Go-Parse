@@ -35,6 +35,7 @@ func main(){
 type Node struct{
 	parent *Node
 	children []*Node
+	operators []string
 	content string
 }
 
@@ -65,12 +66,16 @@ func (n *Node) traverse() {
 				child.traverse()
 			}
 		}
+		for _, op := range n.operators{
+			fmt.Printf("%s ",op)
+		}
+		
 		fmt.Print("] ")
 	}
 }
 
 func (n *Node) eval() float64{
-	var val float64
+	var val float64 = float64(0)
 	if n.isleaf() {
 		//fmt.Sscanf(n.content, "%f", &val)
 		v, _ := strconv.ParseFloat(n.content, 64)
@@ -79,34 +84,18 @@ func (n *Node) eval() float64{
 	}
 
 	// Addition ; modify later to include operation
-	op := n.children[len(n.children)-1]
-	operands := n.children[0:(len(n.children)-1)]
-	
-	if op.content == "+"{
-		val = float64(0)
-		for _, operand := range operands{
-			val += operand.eval()
-		}
-	} else if op.content == "-" {
-		val = float64(0)
-		for _, operand := range operands{
-			val -= operand.eval()
-		}
-	} else if op.content == "*" {
-		v, _ := strconv.ParseFloat(operands[0].content, 64)
-		val = v
-		for i, operand := range operands{
-			if i > 0{
-				val *= operand.eval()
-			}
-		}
-	} else if op.content == "/" {
-		v, _ := strconv.ParseFloat(operands[0].content, 64)
-		val = v
-		for i, operand := range operands{
-			if i > 0{
-				val /= operand.eval()
-			}
+	ops := n.operators
+	operands := n.children
+
+	for i, op := range ops {
+		if op == "+"{
+			val += operands[i].eval()+operands[i+1].eval() 
+		} else if op == "-" {
+			val += operands[i].eval()-operands[i+1].eval()
+		} else if op == "*" {
+			val += operands[i].eval()*operands[i+1].eval()
+		} else if op == "/" {
+			val += operands[i].eval()/operands[i+1].eval()
 		}
 	}
 	return val
@@ -114,7 +103,7 @@ func (n *Node) eval() float64{
 
 func make_ast(expr string) *Node{
 	var root_node *Node = new(Node)
-	var op *Node
+	var ops []string
 	var operands []*Node
 	var cursor int = 0
 
@@ -123,32 +112,28 @@ func make_ast(expr string) *Node{
 		if isin(append(NUMS,"."), character) {
 			num :=  make_num(expr, cursor)
 			children :=  []*Node{nil,nil,nil}
-			operands = append(operands, &Node{parent: root_node, content: num, children:children})
+			operands = append(operands, &Node{parent: root_node, content: num, children:children, operators: []string{""}})
 			cursor += len(num)
 		} else if "(" == character {
 			// Incorrect
 			// Try working through a situation
 			// with nested brackets
-			close_parenthesis := indexof(str2arr(expr), ")", cursor)
 			//--------------------------------------------------------//
 			//----------Breaks when close... is -1 -------------------//
 			//--------------------------------------------------------//
-			if close_parenthesis != -1 {
-				operands = append(operands, make_ast(expr[cursor+1:close_parenthesis]))
-				cursor = close_parenthesis+1
-			} else {
-				cursor++
-			}
+			subtree := make_ast(expr[cursor+1:len(expr)])
+			operands = append(operands, subtree)
+			cursor += len(subtree.content)-1
+		} else if ")" == character {
+			break
 		} else if isin(OPS, character) {
-			op_content := character
-			op_children := []*Node {nil,nil,nil}
-			op = &Node{parent: root_node, children: op_children, content: op_content}		
-			cursor += len(op_content)
+			ops = append(ops, character)
+			cursor ++
 		} else {
 			cursor++
 		}	
 	}
-	*root_node = Node{parent:nil, children: append(operands, op), content: expr}
+	*root_node = Node{parent:nil, children: operands, content: expr, operators: ops}
 	return root_node
 }
 
