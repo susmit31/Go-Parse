@@ -13,7 +13,7 @@ var NUMS = srange(0,10)
 
 func main(){
 	var inpstr string
-
+	var isrepl bool = false;
 	//---------------------------------- 
 	// Accepting full input string
 	//----------------------------------
@@ -21,18 +21,32 @@ func main(){
 		scanner := bufio.NewScanner(os.Stdin)
 		scanner.Scan()
 		inpstr = scanner.Text()
-	} else {
+	} else if os.Args[1] == "-c"{
 		inpstr = arr2str(os.Args[2:len(os.Args)])
+	} else if os.Args[1] == "-i" {
+		isrepl = true
 	}
 
 	//-----------------------------------
 	// Tokenizing the input string
 	//-----------------------------------
-	parsed := make_ast(inpstr)
+	for true {
+		if isrepl{
+			fmt.Print(">> ")
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			inpstr = scanner.Text()
+		}
+		parsed := make_ast(inpstr)
 
-	parsed.traverse()
-	fmt.Println()
-	fmt.Println(parsed.eval())
+		parsed.traverse()
+		fmt.Println()
+		fmt.Println(parsed.eval())
+
+		if !isrepl{
+			break
+		}
+	}
 }
 
 
