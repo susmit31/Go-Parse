@@ -66,6 +66,7 @@ func (n *Node) traverse() {
 				child.traverse()
 			}
 		}
+		fmt.Printf(" | ")
 		for _, op := range n.operators{
 			fmt.Printf("%s ",op)
 		}
@@ -87,15 +88,16 @@ func (n *Node) eval() float64{
 	ops := n.operators
 	operands := n.children
 
+	val += operands[0].eval()
 	for i, op := range ops {
 		if op == "+"{
-			val += operands[i].eval()+operands[i+1].eval() 
+			val += operands[i+1].eval() 
 		} else if op == "-" {
-			val += operands[i].eval()-operands[i+1].eval()
+			val -= operands[i+1].eval()
 		} else if op == "*" {
-			val += operands[i].eval()*operands[i+1].eval()
+			val *= operands[i+1].eval()
 		} else if op == "/" {
-			val += operands[i].eval()/operands[i+1].eval()
+			val /= operands[i+1].eval()
 		}
 	}
 	return val
