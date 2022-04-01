@@ -17,9 +17,13 @@ func main(){
 	//---------------------------------- 
 	// Accepting full input string
 	//----------------------------------
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
-	inpstr = scanner.Text()
+	if !(len(os.Args) > 1){
+		scanner := bufio.NewScanner(os.Stdin)
+		scanner.Scan()
+		inpstr = scanner.Text()
+	} else {
+		inpstr = arr2str(os.Args[2:len(os.Args)])
+	}
 
 	//-----------------------------------
 	// Tokenizing the input string
@@ -48,30 +52,21 @@ func (n *Node) isleaf() bool{
 	return true
 }
 
-/*func (n* Node) isroot() bool{
-	if n.parent == nil {
-		return true
-	} else {
-		return false
-	}
-}*/
-
 func (n *Node) traverse() {
 	if n.isleaf() {
 		fmt.Printf(" %s ", n.content)
 	} else {
-		fmt.Print(" [")
+		fmt.Print(" (")
 		for _, child := range n.children{
 			if child != nil {
 				child.traverse()
 			}
 		}
-		fmt.Printf(" | ")
+		fmt.Printf(" # ")
 		for _, op := range n.operators{
 			fmt.Printf("%s ",op)
 		}
-		
-		fmt.Print("] ")
+		fmt.Print(") ")
 	}
 }
 
@@ -114,28 +109,30 @@ func make_ast(expr string) *Node{
 		if isin(append(NUMS,"."), character) {
 			num :=  make_num(expr, cursor)
 			children :=  []*Node{nil,nil,nil}
-			operands = append(operands, &Node{parent: root_node, content: num, children:children, operators: []string{""}})
+			operands = append(operands, 
+						&Node{parent: root_node, 
+							content: num,
+							children:children, 
+							operators: []string{""}})
 			cursor += len(num)
 		} else if "(" == character {
-			// Incorrect
-			// Try working through a situation
-			// with nested brackets
-			//--------------------------------------------------------//
-			//----------Breaks when close... is -1 -------------------//
-			//--------------------------------------------------------//
 			subtree := make_ast(expr[cursor+1:len(expr)])
 			operands = append(operands, subtree)
-			cursor += len(subtree.content)-1
+			cursor += len(subtree.content)+1
 		} else if ")" == character {
+			expr = expr[0:(cursor+1)]
 			break
 		} else if isin(OPS, character) {
 			ops = append(ops, character)
-			cursor ++
+			cursor++
 		} else {
 			cursor++
 		}	
 	}
-	*root_node = Node{parent:nil, children: operands, content: expr, operators: ops}
+	*root_node = Node{parent:nil, 
+					children: operands, 
+					content: expr, 
+					operators: ops}
 	return root_node
 }
 
@@ -188,13 +185,10 @@ func indexof[T comparable] (arr []T, el T, startat int) int{
 	return -1
 }
 
-/*func indicesof[T comparable] (arr []T, el T) []int{
-	var indices []int
-	for i:=0; i < len(arr); i++ {
-		if arr[i] == el {
-			indices = append(indices, int(i))
-		}
+func arr2str(arr []string) string{
+	var result string 
+	for _, str := range arr {
+		result += str
 	}
-	return indices
+	return result
 }
-*/
